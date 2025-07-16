@@ -52,6 +52,7 @@ export default function AddTransactionForm({ onAddTransaction }) {
           }
         }
       )
+      console.log(response)
       const added = response.data.transaction
 
       onAddTransaction(added)

@@ -2,7 +2,9 @@ const Transaction = require('../models/Transaction');
 
 exports.addTransaction = async (req, res) =>{
     try {
-        console.log(body)
+        // console.log(body)
+        // console.log('add trans called')
+        // console.log("🟢 req.user:", req.user);
         const {type, category, amount, date, note} = req.body
         const transaction = new Transaction({
             userId: req.user.userId,
@@ -12,7 +14,7 @@ exports.addTransaction = async (req, res) =>{
             date: date,
             note: note
         })
-
+        console.log(transaction)
         await transaction.save()
 
         console.log(transaction)
@@ -26,8 +28,10 @@ exports.addTransaction = async (req, res) =>{
 
 exports.getAllTransactions = async (req, res) => {
     try {
+        console.log('get trans is called')
         const transaction = await Transaction.find({userId : req.user.userId}).sort({ date: -1 } )
-        res.status(200).json(transaction)
+        console.log(transaction)
+        res.status(200).json({ transaction})
     } catch (error) {
         res.status(500).json({message: error.message})
     }

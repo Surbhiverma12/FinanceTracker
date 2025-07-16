@@ -9,6 +9,7 @@ import AddTransaction from "./AddTransaction"
 import Transactions from "./Transactions"
 import Analytics from "./Analytics"
 import Settings from "./Settings"
+import axios from 'axios'
 
 export default function MainApp({ user, onLogout, showToast }) {
   const [currentPage, setCurrentPage] = useState("dashboard")
@@ -19,60 +20,69 @@ export default function MainApp({ user, onLogout, showToast }) {
   useEffect(() => {
     const loadTransactions = async () => {
       setIsLoading(true)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      const mockTransactions = [
-        {
-          id: 1,
-          type: "income",
-          category: "Salary",
-          amount: 5000,
-          date: "2024-01-15",
-          note: "Monthly salary",
-        },
-        {
-          id: 2,
-          type: "expense",
-          category: "Food",
-          amount: 150,
-          date: "2024-01-14",
-          note: "Grocery shopping",
-        },
-        {
-          id: 3,
-          type: "expense",
-          category: "Transportation",
-          amount: 50,
-          date: "2024-01-13",
-          note: "Gas for car",
-        },
-        {
-          id: 4,
-          type: "income",
-          category: "Freelance",
-          amount: 800,
-          date: "2024-01-12",
-          note: "Web development project",
-        },
-        {
-          id: 5,
-          type: "expense",
-          category: "Entertainment",
-          amount: 75,
-          date: "2024-01-11",
-          note: "Movie tickets",
-        },
-        {
-          id: 6,
-          type: "expense",
-          category: "Bills",
-          amount: 200,
-          date: "2024-01-10",
-          note: "Electricity bill",
-        },
-      ]
+      // const mockTransactions = [
+      //   {
+      //     id: 1,
+      //     type: "income",
+      //     category: "Salary",
+      //     amount: 5000,
+      //     date: "2024-01-15",
+      //     note: "Monthly salary",
+      //   },
+      //   {
+      //     id: 2,
+      //     type: "expense",
+      //     category: "Food",
+      //     amount: 150,
+      //     date: "2024-01-14",
+      //     note: "Grocery shopping",
+      //   },
+      //   {
+      //     id: 3,
+      //     type: "expense",
+      //     category: "Transportation",
+      //     amount: 50,
+      //     date: "2024-01-13",
+      //     note: "Gas for car",
+      //   },
+      //   {
+      //     id: 4,
+      //     type: "income",
+      //     category: "Freelance",
+      //     amount: 800,
+      //     date: "2024-01-12",
+      //     note: "Web development project",
+      //   },
+      //   {
+      //     id: 5,
+      //     type: "expense",
+      //     category: "Entertainment",
+      //     amount: 75,
+      //     date: "2024-01-11",
+      //     note: "Movie tickets",
+      //   },
+      //   {
+      //     id: 6,
+      //     type: "expense",
+      //     category: "Bills",
+      //     amount: 200,
+      //     date: "2024-01-10",
+      //     note: "Electricity bill",
+      //   },
+      // ]
 
-      setTransactions(mockTransactions)
+      const token = localStorage.getItem('token')
+      const response = await axios.get('http://localhost:3000/api/transactions', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      console.log(response.data.transaction)
+
+      setTransactions(response.data.transaction)
       setIsLoading(false)
     }
 

@@ -46,6 +46,7 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
         email: formData.email,
         password: formData.password
       })
+      console.log(response)
 
       const {token, user} = response.data
 

@@ -7,9 +7,13 @@ import { Menu, Bell, Search, User, LogOut, Settings, Wallet } from "lucide-react
 export default function Header({ user, currentPage, onPageChange, onLogout, onMenuToggle, transactions }) {
   const [showUserMenu, setShowUserMenu] = useState(false)
 
-  const totalBalance = transactions.reduce((acc, transaction) => {
-    return transaction.type === "income" ? acc + transaction.amount : acc - transaction.amount
-  }, 0)
+  const totalBalance = Array.isArray(transactions)
+  ? transactions.reduce((acc, transaction) => {
+      return transaction.type === "income"
+        ? acc + transaction.amount
+        : acc - transaction.amount
+    }, 0)
+  : 0
 
   const navItems = [
     { id: "dashboard", label: "Dashboard" },
