@@ -3,9 +3,11 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Menu, Bell, Search, User, LogOut, Settings, Wallet } from "lucide-react"
+import { useCurrency } from "../CurrencyContext"
 
 export default function Header({ user, currentPage, onPageChange, onLogout, onMenuToggle, transactions }) {
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const { formatCurrency } = useCurrency();
 
   const totalBalance = Array.isArray(transactions)
   ? transactions.reduce((acc, transaction) => {
@@ -65,7 +67,7 @@ export default function Header({ user, currentPage, onPageChange, onLogout, onMe
             <div className="hidden md:flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-lg">
               <span className="text-sm text-gray-600">Balance:</span>
               <span className={`font-semibold ${totalBalance >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-                ${totalBalance.toFixed(2)}
+                {formatCurrency(totalBalance)}
               </span>
             </div>
 

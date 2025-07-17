@@ -67,7 +67,7 @@ export default function TransactionList({ transactions, onDeleteTransaction, isL
           <AnimatePresence>
             {transactions.map((transaction, index) => (
               <motion.div
-                key={transaction.id}
+                key={transaction._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -100 }}
@@ -128,7 +128,7 @@ export default function TransactionList({ transactions, onDeleteTransaction, isL
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => onDeleteTransaction(transaction.id)}
+                    onClick={() => onDeleteTransaction(transaction._id)}
                     className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                   >
                     <Trash2 className="w-4 h-4" />

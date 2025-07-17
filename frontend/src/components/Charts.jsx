@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion"
 import { PieChart } from "lucide-react"
+import { useCurrency } from "../CurrencyContext"
 
 export default function Charts({ transactions }) {
+  const {formatCurrency} = useCurrency()
   const expensesByCategory = transactions
     .filter((t) => t.type === "expense")
     .reduce((acc, transaction) => {
@@ -53,7 +55,7 @@ export default function Charts({ transactions }) {
                     <span className="font-medium text-gray-700">{category}</span>
                   </div>
                   <div className="text-right">
-                    <span className="font-semibold text-gray-900">${amount.toFixed(2)}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(amount)}</span>
                     <span className="text-sm text-gray-500 ml-2">({percentage.toFixed(1)}%)</span>
                   </div>
                 </div>

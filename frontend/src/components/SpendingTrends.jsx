@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion"
 import { TrendingUp } from "lucide-react"
+import { useCurrency } from "../CurrencyContext"
 
 export default function SpendingTrends({ transactions }) {
+  const {formatCurrency} = useCurrency()
   const monthlyData = transactions.reduce((acc, transaction) => {
     const month = new Date(transaction.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })
     if (!acc[month]) {
@@ -51,13 +53,13 @@ export default function SpendingTrends({ transactions }) {
             >
               <div className="flex justify-between items-center">
                 <span className="font-medium text-gray-700">{month}</span>
-                <div className="text-sm text-gray-500">Net: ${(data.income - data.expenses).toFixed(2)}</div>
+                <div className="text-sm text-gray-500">Net: {formatCurrency(data.income - data.expenses)}</div>
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-emerald-600">Income</span>
-                  <span className="font-medium">${data.income.toFixed(2)}</span>
+                  <span className="font-medium">{formatCurrency(data.income)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <motion.div
@@ -72,7 +74,7 @@ export default function SpendingTrends({ transactions }) {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-red-600">Expenses</span>
-                  <span className="font-medium">${data.expenses.toFixed(2)}</span>
+                  <span className="font-medium">{formatCurrency(data.expenses)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <motion.div

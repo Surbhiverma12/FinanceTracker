@@ -2,15 +2,20 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Plus, DollarSign, FileText, Calendar } from "lucide-react"
+import { Plus, DollarSign, FileText, Calendar, IndianRupee } from "lucide-react"
 import axios from "axios"
+import { useCurrency } from "../CurrencyContext"
 
 export default function AddTransactionForm({ onAddTransaction }) {
+  const { currency } = useCurrency();
+
+  const CurrencyIcon = currency === 'USD' ? DollarSign : IndianRupee;
+
   const [formData, setFormData] = useState({
     type: "expense",
     category: "",
     amount: "",
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toLocaleDateString('en-IN'),
     note: "",
   })
   const [isLoading, setIsLoading] = useState(false)
@@ -143,7 +148,7 @@ export default function AddTransactionForm({ onAddTransaction }) {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
           <div className="relative">
-            <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <CurrencyIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="number"
               name="amount"

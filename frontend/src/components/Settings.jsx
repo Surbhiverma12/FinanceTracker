@@ -3,16 +3,22 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { User, Bell, Shield, Palette, LogOut, Save } from "lucide-react"
+import { useCurrency } from "../CurrencyContext"
+
 
 export default function Settings({ user, onLogout, showToast }) {
+
+  const { currency, setCurrency } = useCurrency()
+
   const [settings, setSettings] = useState({
     notifications: true,
     darkMode: false,
-    currency: "USD",
+    currency: currency, // use context value
     language: "English",
   })
 
   const handleSave = () => {
+    setCurrency(settings.currency)
     showToast("success", "Settings saved successfully!")
   }
 
@@ -93,12 +99,13 @@ export default function Settings({ user, onLogout, showToast }) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
                 <select
                   value={settings.currency}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, currency: e.target.value }))}
+                  onChange={(e) =>
+                    setSettings((prev) => ({ ...prev, currency: e.target.value }))
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="GBP">GBP (£)</option>
+                  <option value="INR">INR (₹)</option>
                 </select>
               </div>
               <div>

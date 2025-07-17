@@ -17,61 +17,18 @@ export default function MainApp({ user, onLogout, showToast }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+  function formatDate(dateString) {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    })
+  }
+
   useEffect(() => {
     const loadTransactions = async () => {
       setIsLoading(true)
-      // await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // const mockTransactions = [
-      //   {
-      //     id: 1,
-      //     type: "income",
-      //     category: "Salary",
-      //     amount: 5000,
-      //     date: "2024-01-15",
-      //     note: "Monthly salary",
-      //   },
-      //   {
-      //     id: 2,
-      //     type: "expense",
-      //     category: "Food",
-      //     amount: 150,
-      //     date: "2024-01-14",
-      //     note: "Grocery shopping",
-      //   },
-      //   {
-      //     id: 3,
-      //     type: "expense",
-      //     category: "Transportation",
-      //     amount: 50,
-      //     date: "2024-01-13",
-      //     note: "Gas for car",
-      //   },
-      //   {
-      //     id: 4,
-      //     type: "income",
-      //     category: "Freelance",
-      //     amount: 800,
-      //     date: "2024-01-12",
-      //     note: "Web development project",
-      //   },
-      //   {
-      //     id: 5,
-      //     type: "expense",
-      //     category: "Entertainment",
-      //     amount: 75,
-      //     date: "2024-01-11",
-      //     note: "Movie tickets",
-      //   },
-      //   {
-      //     id: 6,
-      //     type: "expense",
-      //     category: "Bills",
-      //     amount: 200,
-      //     date: "2024-01-10",
-      //     note: "Electricity bill",
-      //   },
-      // ]
 
       const token = localStorage.getItem('token')
       const response = await axios.get('http://localhost:3000/api/transactions', {
@@ -80,9 +37,12 @@ export default function MainApp({ user, onLogout, showToast }) {
         }
       })
 
-      console.log(response.data.transaction)
+      const formatted = response.data.transaction.map(t => ({
+        ...t,
+        date: formatDate(t.date)
+      }))
 
-      setTransactions(response.data.transaction)
+      setTransactions(formatted)
       setIsLoading(false)
     }
 
@@ -93,15 +53,28 @@ export default function MainApp({ user, onLogout, showToast }) {
     const transaction = {
       ...newTransaction,
       id: Date.now(),
-      date: new Date().toISOString().split("T")[0],
+      date: formatDate(new Date().toISOString()),
     }
     setTransactions((prev) => [transaction, ...prev])
     showToast("success", "Transaction added successfully!")
   }
 
-  const deleteTransaction = (id) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id))
-    showToast("success", "Transaction deleted successfully!")
+  const deleteTransaction = async (id) => {
+    try {
+      console.log("Deleting transaction with ID:", id);
+      const token = localStorage.getItem('token')
+      const response = await axios.delete(`http://localhost:3000/api/transactions/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      setTransactions((prev) => prev.filter((t) => t._id !== id))
+    
+      showToast("success", "Transaction deleted successfully!" || response.data.message)
+    } catch (error) {
+      showToast("error", error.message)
+    }
   }
 
   const renderPage = () => {

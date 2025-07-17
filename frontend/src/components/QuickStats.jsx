@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion"
 import { PieChart } from "lucide-react"
+import { useCurrency } from "../CurrencyContext"
 
 export default function QuickStats({ transactions }) {
+  const {formatCurrency} = useCurrency()
   const expensesByCategory = transactions
     .filter((t) => t.type === "expense")
     .reduce((acc, transaction) => {
@@ -45,7 +47,7 @@ export default function QuickStats({ transactions }) {
               >
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-700">{category}</span>
-                  <span className="text-sm text-gray-500">${amount.toFixed(2)}</span>
+                  <span className="text-sm text-gray-500">{formatCurrency(amount)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <motion.div

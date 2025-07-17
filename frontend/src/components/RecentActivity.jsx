@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion"
 import { TrendingUp, TrendingDown, Clock } from "lucide-react"
+import { useCurrency } from "../CurrencyContext"
 
 export default function RecentActivity({ transactions }) {
+  const {formatCurrency} = useCurrency()
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -47,7 +49,7 @@ export default function RecentActivity({ transactions }) {
               </div>
               <div className="text-right">
                 <p className={`font-semibold ${transaction.type === "income" ? "text-emerald-600" : "text-red-600"}`}>
-                  {transaction.type === "income" ? "+" : "-"}${transaction.amount.toFixed(2)}
+                  {transaction.type === "income" ? "+" : "-"}{formatCurrency(transaction.amount)}
                 </p>
                 <p className="text-sm text-gray-500">{transaction.date}</p>
               </div>

@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
+import { useCurrency } from "../CurrencyContext"
 import { Search, Filter, TrendingUp, TrendingDown, Trash2 } from "lucide-react"
 
 export default function Transactions({ transactions, onDeleteTransaction, isLoading }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
+  const { formatCurrency } = useCurrency()
 
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch =
@@ -77,7 +79,7 @@ export default function Transactions({ transactions, onDeleteTransaction, isLoad
             <div className="divide-y divide-gray-100">
               {filteredTransactions.map((transaction, index) => (
                 <motion.div
-                  key={transaction.id}
+                  key={transaction._id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -109,12 +111,12 @@ export default function Transactions({ transactions, onDeleteTransaction, isLoad
                             transaction.type === "income" ? "text-emerald-600" : "text-red-600"
                           }`}
                         >
-                          {transaction.type === "income" ? "+" : "-"}${transaction.amount.toFixed(2)}
+                          {transaction.type === "income" ? "+" : "-"}{formatCurrency(transaction.amount)}
                         </p>
                         <p className="text-sm text-gray-500 capitalize">{transaction.type}</p>
                       </div>
                       <button
-                        onClick={() => onDeleteTransaction(transaction.id)}
+                        onClick={() => onDeleteTransaction(transaction._id)}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />

@@ -7,6 +7,7 @@ import Register from "./components/Register"
 import MainApp from "./components/MainApp"
 import Toast from "./components/Toast"
 import axios from "axios"
+import { CurrencyProvider } from "./CurrencyContext"
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("login")
@@ -14,7 +15,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [toast, setToast] = useState(null)
 
-  useEffect(() => {
+  useEffect(() => { 
     const token = localStorage.getItem("token")
     const userData = localStorage.getItem("user")
 
@@ -68,6 +69,7 @@ export default function App() {
   }
 
   return (
+    <CurrencyProvider>
     <div className="min-h-screen">
       <AnimatePresence mode="wait">
         {currentPage === "login" && (
@@ -93,5 +95,6 @@ export default function App() {
 
       {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
     </div>
+    </CurrencyProvider>
   )
 }

@@ -2,8 +2,11 @@
 
 import { motion } from "framer-motion"
 import { TrendingUp, TrendingDown, DollarSign, CreditCard } from "lucide-react"
+import { useCurrency } from "../CurrencyContext";
 
 export default function SummaryCards({ totalIncome, totalExpenses, balance, transactions }) {
+
+  const { formatCurrency } = useCurrency();
   const cards = [
     {
       title: "Total Balance",
@@ -57,7 +60,7 @@ export default function SummaryCards({ totalIncome, totalExpenses, balance, tran
             <div>
               <p className="text-sm text-gray-600 mb-1">{card.title}</p>
               <p className="text-2xl font-bold text-gray-900">
-                {card.isCount ? card.value : `$${card.value.toFixed(2)}`}
+                {card.isCount ? card.value : formatCurrency(card.value)}
               </p>
             </div>
           </motion.div>
