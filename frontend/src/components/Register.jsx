@@ -6,6 +6,7 @@ import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Star, Users, Award, Zap } fr
 import axios from 'axios'
 
 export default function Register({ onRegister, onSwitchToLogin, showToast }) {
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -52,7 +53,7 @@ export default function Register({ onRegister, onSwitchToLogin, showToast }) {
     setIsLoading(true)
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/register', {
+      const response = await axios.post(`${BASE_URL}/api/auth/register`, {
         name: formData.name,
         email: formData.email,
         password: formData.password

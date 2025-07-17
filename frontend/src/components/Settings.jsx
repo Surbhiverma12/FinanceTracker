@@ -13,7 +13,7 @@ export default function Settings({ user, onLogout, showToast }) {
   const [settings, setSettings] = useState({
     notifications: true,
     darkMode: false,
-    currency: currency, // use context value
+    currency: currency, 
     language: "English",
   })
 

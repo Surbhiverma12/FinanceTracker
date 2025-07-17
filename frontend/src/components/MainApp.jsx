@@ -12,6 +12,7 @@ import Settings from "./Settings"
 import axios from 'axios'
 
 export default function MainApp({ user, onLogout, showToast }) {
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [transactions, setTransactions] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -31,11 +32,13 @@ export default function MainApp({ user, onLogout, showToast }) {
       setIsLoading(true)
 
       const token = localStorage.getItem('token')
-      const response = await axios.get('http://localhost:3000/api/transactions', {
+      const response = await axios.get(`${BASE_URL}/api/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       })
+
+      console.log(response)
 
       const formatted = response.data.transaction.map(t => ({
         ...t,
@@ -63,7 +66,7 @@ export default function MainApp({ user, onLogout, showToast }) {
     try {
       console.log("Deleting transaction with ID:", id);
       const token = localStorage.getItem('token')
-      const response = await axios.delete(`http://localhost:3000/api/transactions/${id}`, {
+      const response = await axios.delete(`${BASE_URL}/api/transactions/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

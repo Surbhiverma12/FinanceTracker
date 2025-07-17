@@ -6,6 +6,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, TrendingUp, Shield, Smartphone } f
 import axios from 'axios'
 
 export default function Login({ onLogin, onSwitchToRegister, showToast }) {
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -42,7 +43,7 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
 
     try {
      
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
+      const response = await axios.post(`${BASE_URL}/api/auth/login`, {
         email: formData.email,
         password: formData.password
       })

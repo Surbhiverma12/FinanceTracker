@@ -10,6 +10,7 @@ export default function AddTransactionForm({ onAddTransaction }) {
   const { currency } = useCurrency();
 
   const CurrencyIcon = currency === 'USD' ? DollarSign : IndianRupee;
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const [formData, setFormData] = useState({
     type: "expense",
@@ -35,15 +36,9 @@ export default function AddTransactionForm({ onAddTransaction }) {
     setIsLoading(true)
 
     try {
-      // await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // onAddTransaction({
-      //   ...formData,
-      //   amount: Number.parseFloat(formData.amount),
-      // })
 
       const token = localStorage.getItem('token')
-      const response  = await axios.post('http://localhost:3000/api/transactions',
+      const response  = await axios.post(`${BASE_URL}/api/transactions`,
         {
             type: formData.type,
             category: formData.category,
