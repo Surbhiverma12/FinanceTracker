@@ -1,152 +1,147 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { User, Bell, Shield, Palette, LogOut, Save } from "lucide-react"
 import { useCurrency } from "../CurrencyContext"
-
+import axios from "axios"
 
 export default function Settings({ user, onLogout, showToast }) {
-
   const { currency, setCurrency } = useCurrency()
 
   const [settings, setSettings] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
     notifications: true,
     darkMode: false,
-    currency: currency, 
+    currency: currency,
     language: "English",
   })
 
-  const handleSave = () => {
-    setCurrency(settings.currency)
-    showToast("success", "Settings saved successfully!")
+  const token = localStorage.getItem("token")
+
+  // Load settings from backend
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/settings`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (res.data) {
+          setSettings((prev) => ({
+            ...prev,
+            ...res.data,
+          }))
+        }
+      } catch (err) {
+        console.error("Error loading settings", err)
+      }
+    }
+
+    fetchSettings()
+  }, [])
+
+  // Save settings to backend
+  const handleSave = async () => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/settings`,
+        {
+          name: settings.name,
+          email: settings.email,
+          currency: settings.currency,
+          notifications: settings.notifications,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      setCurrency(settings.currency)
+      showToast("success", "Settings saved successfully!")
+    } catch (error) {
+      console.error("Error saving settings", error)
+      showToast("error", "Failed to save settings")
+    }
+  }
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setSettings((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }))
   }
 
   return (
-    <div className="p-4 lg:p-8">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <div className="mb-8">
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Settings</h1>
+    <div className="p-4 md:p-6 lg:p-10 ">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} >
+        <div className="mb-6">
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">⚙️ Settings</h1>
           <p className="text-gray-600">Manage your account and preferences</p>
         </div>
 
         <div className="max-w-2xl space-y-6">
           {/* Profile Settings */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center space-x-3 mb-6">
-              <User className="w-6 h-6 text-gray-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Profile</h3>
-            </div>
+          <Section title="Profile" icon={<User className="w-5 h-5 text-gray-600" />}>
+            <Input label="Name" name="name" value={settings.name} onChange={handleChange} />
+            <Input label="Email" name="email" value={settings.email} disabled />
+          </Section>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                <input
-                  type="text"
-                  defaultValue={user?.name}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  defaultValue={user?.email}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
+          {/* Notifications */}
+          <Section title="Notifications" icon={<Bell className="w-5 h-5 text-gray-600" />}>
+            <Toggle
+              label="Push Notifications"
+              description="Receive alerts for transactions"
+              enabled={settings.notifications}
+              onToggle={() =>
+                setSettings((prev) => ({ ...prev, notifications: !prev.notifications }))
+              }
+            />
+          </Section>
 
-          {/* Notification Settings */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center space-x-3 mb-6">
-              <Bell className="w-6 h-6 text-gray-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-            </div>
+          {/* Appearance */}
+          <Section title="Appearance" icon={<Palette className="w-5 h-5 text-gray-600" />}>
+            <Select
+              label="Currency"
+              name="currency"
+              value={settings.currency}
+              onChange={handleChange}
+              options={[
+                { label: "USD ($)", value: "USD" },
+                { label: "INR (₹)", value: "INR" },
+                { label: "EUR (€)", value: "EUR" },
+              ]}
+            />
+            <Select
+              label="Language"
+              name="language"
+              value={settings.language}
+              onChange={handleChange}
+              options={[
+                { label: "English", value: "English" },
+                { label: "Hindi", value: "Hindi" },
+                { label: "French", value: "French" },
+              ]}
+            />
+          </Section>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Push Notifications</p>
-                  <p className="text-sm text-gray-500">Receive notifications about your transactions</p>
-                </div>
-                <button
-                  onClick={() => setSettings((prev) => ({ ...prev, notifications: !prev.notifications }))}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    settings.notifications ? "bg-emerald-500" : "bg-gray-300"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings.notifications ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Appearance Settings */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center space-x-3 mb-6">
-              <Palette className="w-6 h-6 text-gray-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Appearance</h3>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
-                <select
-                  value={settings.currency}
-                  onChange={(e) =>
-                    setSettings((prev) => ({ ...prev, currency: e.target.value }))
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="USD">USD ($)</option>
-                  <option value="INR">INR (₹)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
-                <select
-                  value={settings.language}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, language: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="English">English</option>
-                  <option value="Spanish">Spanish</option>
-                  <option value="French">French</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Security Settings */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center space-x-3 mb-6">
-              <Shield className="w-6 h-6 text-gray-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Security</h3>
-            </div>
-
-            <div className="space-y-4">
-              <button className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                Change Password
-              </button>
-              <button className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                Two-Factor Authentication
-              </button>
-            </div>
-          </div>
+          {/* Security */}
+          <Section title="Security" icon={<Shield className="w-5 h-5 text-gray-600" />}>
+            <button className="w-full px-4 py-3 border rounded-lg text-left hover:bg-gray-50">Change Password</button>
+            <button className="w-full px-4 py-3 border rounded-lg text-left hover:bg-gray-50">Two-Factor Authentication</button>
+          </Section>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleSave}
-              className="flex items-center justify-center space-x-2 bg-emerald-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-600 transition-colors"
+              className="flex items-center justify-center space-x-2 bg-emerald-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-600"
             >
               <Save className="w-5 h-5" />
               <span>Save Changes</span>
@@ -156,7 +151,7 @@ export default function Settings({ user, onLogout, showToast }) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={onLogout}
-              className="flex items-center justify-center space-x-2 bg-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-600 transition-colors"
+              className="flex items-center justify-center space-x-2 bg-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-600"
             >
               <LogOut className="w-5 h-5" />
               <span>Logout</span>
@@ -164,6 +159,75 @@ export default function Settings({ user, onLogout, showToast }) {
           </div>
         </div>
       </motion.div>
+    </div>
+  )
+}
+
+// Reusable Section component
+function Section({ title, icon, children }) {
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="flex items-center space-x-3 mb-4">
+        {icon}
+        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      </div>
+      <div className="space-y-4">{children}</div>
+    </div>
+  )
+}
+
+function Input({ label, name, value, onChange, disabled }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <input
+        name={name}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+      />
+    </div>
+  )
+}
+
+function Select({ label, name, value, onChange, options }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+function Toggle({ label, description, enabled, onToggle }) {
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="font-medium text-gray-900">{label}</p>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+      <button
+        onClick={onToggle}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+          enabled ? "bg-emerald-500" : "bg-gray-300"
+        }`}
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+            enabled ? "translate-x-6" : "translate-x-1"
+          }`}
+        />
+      </button>
     </div>
   )
 }

@@ -28,7 +28,6 @@ exports.addTransaction = async (req, res) =>{
 
 exports.getAllTransactions = async (req, res) => {
     try {
-        console.log('get trans is called')
         const transaction = await Transaction.find({userId : req.user.userId}).sort({ date: -1 } )
         console.log(transaction)
         res.status(200).json({ transaction})

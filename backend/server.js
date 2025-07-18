@@ -10,11 +10,12 @@ app.use(express.json())
 const authRoutes = require('./routes/authRoutes');
 const protectedRoute = require('./routes/protectedRoute');
 const transactionRoutes = require('./routes/transactionRoutes')
-
+const settings = require('./routes/settings')
 
 app.use('/api/auth', authRoutes)
 app.use('/api/protected', protectedRoute);
 app.use('/api/transactions', transactionRoutes);
+app.use("/api/settings", settings)
 
 const port = process.env.PORT || 8000 
 
