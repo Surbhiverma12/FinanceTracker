@@ -46,7 +46,7 @@ exports.login = async (req, res) => {
         const user = await User.findOne({email})
         console.log(user)
         if (!user){
-            return res.status(400).json({message: `user does not exists `})
+            return res.status(400).json({message: 'user does not exists'})
         }
 
         // const hashedpassword = await bcrypt.hash(password, 10)
