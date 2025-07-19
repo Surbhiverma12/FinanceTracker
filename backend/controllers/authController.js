@@ -100,7 +100,7 @@ exports.forgotPasswordController = async (req, res) => {
 
     res.status(200).json({ message: 'Reset link sent to email' });
   } catch (error) {
-    res.status(500).json({ message: error });
+    res.status(400).json({ message: "server error" })
   }
 };
 

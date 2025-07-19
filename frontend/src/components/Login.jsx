@@ -44,12 +44,13 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
         password: formData.password,
       })
 
-      const { token, user } = response.data
+
+      const { token, user } = response?.data
       localStorage.setItem("token", token)
       localStorage.setItem("user", JSON.stringify(user))
       onLogin(user)
     } catch (error) {
-      showToast("error", error.response?.data?.message || "Login failed. Please try again.")
+      showToast("error", error?.response?.data?.message || "Login failed. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -70,7 +71,7 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
       showToast("success", "Password reset link sent! Check your inbox.")
       setIsForgotPassword(false)
     } catch (error) {
-      showToast("error", error.response?.data?.message || "Failed to send reset link.")
+      showToast("error", error?.response?.data?.message || "Failed to send reset link.")
     } finally {
       setIsLoading(false)
     }

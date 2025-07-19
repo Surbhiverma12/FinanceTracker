@@ -34,8 +34,13 @@ export default function App() {
     setIsLoading(false)
   }, [])
 
-  const showToast = (type, message) => {
-    setToast({ type, message })
+ const showToast = (type, message) => {
+    const displayMessage =
+      typeof message === "string"
+        ? message
+        : message?.message || JSON.stringify(message)
+
+    setToast({ type, message: displayMessage })
     setTimeout(() => setToast(null), 4000)
   }
 
@@ -75,40 +80,51 @@ export default function App() {
     <CurrencyProvider>
     <div className="min-h-screen">
       <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/reset-password/:token" element={<ResetPassword 
-          onSwitchToLogin={() => setCurrentPage("login")}
-           showToast={showToast} />} />
-        </Routes>
+        <>
+          <Routes location={location} key={location.pathname}>
+            <Route
+              path="/reset-password/:token"
+              element={
+                <ResetPassword
+                  key="reset-route"
+                  onSwitchToLogin={() => setCurrentPage("login")}
+                  showToast={showToast}
+                />
+              }
+            />
+          </Routes>
 
-        {currentPage === "login" && (
-          <Login
-            key="login"
-            onLogin={handleLogin}
-            onSwitchToRegister={() => setCurrentPage("register")}
-            showToast={showToast}
-          />
-        )}
-        {currentPage === "register" && (
-          <Register
-            key="register"
-            onRegister={handleRegister}
-            onSwitchToLogin={() => setCurrentPage("login")}
-            showToast={showToast}
-          />
-        )}
-        {currentPage === "app" && user && (
-          <MainApp key="app" user={user} onLogout={handleLogout} showToast={showToast} />
-        )}
-        {currentPage === "forgotPassword" && (
-          <ResetPassword
-            key="reset"
-            onSwitchToLogin={() => setCurrentPage("login")}
-            showToast={showToast}
-          />
-        )}
+          {currentPage === "login" && (
+            <Login
+              key="login"
+              onLogin={handleLogin}
+              onSwitchToRegister={() => setCurrentPage("register")}
+              showToast={showToast}
+            />
+          )}
+
+          {currentPage === "register" && (
+            <Register
+              key="register"
+              onRegister={handleRegister}
+              onSwitchToLogin={() => setCurrentPage("login")}
+              showToast={showToast}
+            />
+          )}
+
+          {currentPage === "app" && user && (
+            <MainApp key="app" user={user} onLogout={handleLogout} showToast={showToast} />
+          )}
+
+          {currentPage === "forgotPassword" && (
+            <ResetPassword
+              key="reset"
+              onSwitchToLogin={() => setCurrentPage("login")}
+              showToast={showToast}
+            />
+          )}
+        </>
       </AnimatePresence>
-
       {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
     </div>
     </CurrencyProvider>
