@@ -45,8 +45,8 @@ export default function Register({ onRegister, onSwitchToLogin, showToast }) {
     e.preventDefault()
     if (!validateForm()) return
 
-    setIsLoading(true)
     try {
+      setIsLoading(true)
       const response = await axios.post(`${BASE_URL}/api/auth/register`, {
         name: formData.name,
         email: formData.email,

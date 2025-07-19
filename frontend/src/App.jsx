@@ -8,6 +8,8 @@ import MainApp from "./components/MainApp"
 import Toast from "./components/Toast"
 import axios from "axios"
 import { CurrencyProvider } from "./CurrencyContext"
+import ResetPassword from "./components/ResetPassword" 
+import { Routes, Route, useLocation } from "react-router-dom"
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("login")
@@ -15,6 +17,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [toast, setToast] = useState(null)
 
+  const location = useLocation();
   useEffect(() => { 
     const token = localStorage.getItem("token")
     const userData = localStorage.getItem("user")
@@ -72,6 +75,12 @@ export default function App() {
     <CurrencyProvider>
     <div className="min-h-screen">
       <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/reset-password/:token" element={<ResetPassword 
+          onSwitchToLogin={() => setCurrentPage("login")}
+           showToast={showToast} />} />
+        </Routes>
+
         {currentPage === "login" && (
           <Login
             key="login"
@@ -90,6 +99,13 @@ export default function App() {
         )}
         {currentPage === "app" && user && (
           <MainApp key="app" user={user} onLogout={handleLogout} showToast={showToast} />
+        )}
+        {currentPage === "forgotPassword" && (
+          <ResetPassword
+            key="reset"
+            onSwitchToLogin={() => setCurrentPage("login")}
+            showToast={showToast}
+          />
         )}
       </AnimatePresence>
 

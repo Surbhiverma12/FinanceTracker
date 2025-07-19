@@ -15,6 +15,7 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState({})
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
 
   const validateForm = () => {
     const newErrors = {}
@@ -36,8 +37,8 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
     e.preventDefault()
     if (!validateForm()) return
 
-    setIsLoading(true)
     try {
+      setIsLoading(true)
       const response = await axios.post(`${BASE_URL}/api/auth/login`, {
         email: formData.email,
         password: formData.password,
@@ -53,6 +54,28 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
       setIsLoading(false)
     }
   }
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault()
+    const { email } = formData
+
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setErrors({ email: "Valid email is required" })
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      await axios.post(`${BASE_URL}/api/auth/forgot-password`, { email })
+      showToast("success", "Password reset link sent! Check your inbox.")
+      setIsForgotPassword(false)
+    } catch (error) {
+      showToast("error", error.response?.data?.message || "Failed to send reset link.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -152,10 +175,9 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            onSubmit={handleSubmit}
+            onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit}
             className="space-y-6"
           >
-            {/* Email Field */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
               <div className="relative">
@@ -182,46 +204,54 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
               )}
             </div>
 
-            {/* Password Field */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-white ${
-                    errors.password ? "border-red-300 bg-red-50" : "border-slate-300"
-                  }`}
-                  placeholder="Enter your password"
-                />
+            {/* Conditionally show password field only if not in forgot password mode */}
+            {!isForgotPassword && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-white ${
+                      errors.password ? "border-red-300 bg-red-50" : "border-slate-300"
+                    }`}
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-600 text-sm mt-1"
+                  >
+                    {errors.password}
+                  </motion.p>
+                )}
+              </div>
+            )}
+
+            {/* Forgot Password Toggle */}
+            {!isForgotPassword && (
+              <div className="text-right">
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  Forgot password?
                 </button>
               </div>
-              {errors.password && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-red-600 text-sm mt-1"
-                >
-                  {errors.password}
-                </motion.p>
-              )}
-            </div>
-
-            {/* Forgot Password */}
-            <div className="text-right">
-              <button type="button" className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors">
-                Forgot password?
-              </button>
-            </div>
+            )}
 
             {/* Submit Button */}
             <motion.button
@@ -238,16 +268,30 @@ export default function Login({ onLogin, onSwitchToRegister, showToast }) {
                     transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
                     className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
                   />
-                  Signing In...
+                  {isForgotPassword ? "Sending..." : "Signing In..."}
                 </div>
               ) : (
                 <div className="flex items-center">
-                  Sign In
+                  {isForgotPassword ? "Send Reset Link" : "Sign In"}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </div>
               )}
             </motion.button>
+
+            {/* Switch Back */}
+            {isForgotPassword && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(false)}
+                  className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors mt-2"
+                >
+                  Back to login
+                </button>
+              </div>
+            )}
           </motion.form>
+
 
           <motion.div
             initial={{ opacity: 0 }}
