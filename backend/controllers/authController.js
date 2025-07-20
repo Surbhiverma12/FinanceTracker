@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
+const { console } = require('inspector');
 
 exports.register = async (req, res) => {
     try{
@@ -49,9 +50,6 @@ exports.login = async (req, res) => {
             return res.status(400).json({message: 'user does not exists'})
         }
 
-        // const hashedpassword = await bcrypt.hash(password, 10)
-
-        // console.log(hashedpassword, user.password)
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch){
             return res.status(400).json({message: `Wrong password! Try Again`})
@@ -124,7 +122,6 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired reset token" });
     }
 
-    // ✅ Hash the password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
 
@@ -139,3 +136,28 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.changePassword = async (req, res) => {
+  try {
+    console.log(req.body)
+    const { currentPassword, newPassword} = req.body
+    console.log(currentPassword, newPassword)
+    console.log("req.user:", req.user);
+    const user = await User.findOne({_id: req.user.userId})    
+    console.log('user',user)  
+    if (!user) return res.status(404).json({message: 'User does not exist'})
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password)
+    if (!isMatch) return res.status(400).json({message: 'Incorrect current password'})
+    
+    const newPass = await bcrypt.hash(newPassword, 10)
+    user.password = newPass
+    await user.save()
+
+    res.status(200).json({ message: "Password changed successfully" });
+
+  } catch (error) {
+    console.error("Change password error:", error)
+    res.status(500).json({ message: "Server error" });
+  }
+}

@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { User, Bell, Shield, Palette, LogOut, Save } from "lucide-react"
+import { User, Bell, Shield, Palette, LogOut, Save, Eye, EyeOff } from "lucide-react"
 import { useCurrency } from "../CurrencyContext"
 import axios from "axios"
 
 export default function Settings({ user, onLogout, showToast }) {
   const { currency, setCurrency } = useCurrency()
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
 
   const [settings, setSettings] = useState({
     name: user?.name || "",
@@ -17,6 +21,42 @@ export default function Settings({ user, onLogout, showToast }) {
     currency: currency,
     language: "English",
   })
+
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  })
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleChangePassword = async () => {
+    const { currentPassword, newPassword, confirmNewPassword } = passwordData;
+
+    if (newPassword !== confirmNewPassword) {
+      showToast("error", "New passwords do not match");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/change-password`,
+        { currentPassword, newPassword },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      showToast("success", "Password changed successfully");
+      setPasswordData({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
+    } catch (err) {
+      console.log(err)
+      const msg =
+        err.response?.data?.message || "Error changing password";
+      showToast("error", msg);
+    }
+  };
+
 
   const token = localStorage.getItem("token")
 
@@ -131,9 +171,68 @@ export default function Settings({ user, onLogout, showToast }) {
 
           {/* Security */}
           <Section title="Security" icon={<Shield className="w-5 h-5 text-gray-600" />}>
-            <button className="w-full px-4 py-3 border rounded-lg text-left hover:bg-gray-50">Change Password</button>
-            <button className="w-full px-4 py-3 border rounded-lg text-left hover:bg-gray-50">Two-Factor Authentication</button>
+        <div className="relative">
+  <input
+    type={showCurrent ? "text" : "password"}
+    name="currentPassword"
+    value={passwordData.currentPassword}
+    onChange={handlePasswordChange}
+    placeholder="Current Password"
+    className="w-full border rounded-lg px-4 py-2 pr-10"
+  />
+  <div
+    className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
+    onClick={() => setShowCurrent((prev) => !prev)}
+  >
+    {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+  </div>
+</div>
+
+{/* New Password */}
+<div className="relative mt-4">
+  <input
+    type={showNew ? "text" : "password"}
+    name="newPassword"
+    value={passwordData.newPassword}
+    onChange={handlePasswordChange}
+    placeholder="New Password"
+    className="w-full border rounded-lg px-4 py-2 pr-10"
+  />
+  <div
+    className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
+    onClick={() => setShowNew((prev) => !prev)}
+  >
+    {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+  </div>
+</div>
+
+{/* Confirm New Password */}
+<div className="relative mt-4">
+  <input
+    type={showConfirm ? "text" : "password"}
+    name="confirmNewPassword"
+    value={passwordData.confirmNewPassword}
+    onChange={handlePasswordChange}
+    placeholder="Confirm New Password"
+    className="w-full border rounded-lg px-4 py-2 pr-10"
+  />
+  <div
+    className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
+    onClick={() => setShowConfirm((prev) => !prev)}
+  >
+    {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+  </div>
+</div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleChangePassword}
+              className="w-full bg-emerald-500 text-white px-4 py-3 rounded-lg font-medium hover:bg-emerald-600"
+            >
+              Change Password
+            </motion.button>
           </Section>
+
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -176,19 +275,20 @@ function Section({ title, icon, children }) {
   )
 }
 
-function Input({ label, name, value, onChange, disabled }) {
+function Input({ label, name, value, onChange, disabled, type = "text" }) {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <input
         name={name}
+        type={type}
         value={value}
         onChange={onChange}
         disabled={disabled}
         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
       />
     </div>
-  )
+  );
 }
 
 function Select({ label, name, value, onChange, options }) {
