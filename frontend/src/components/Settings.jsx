@@ -153,7 +153,6 @@ export default function Settings({ user, onLogout, showToast }) {
               options={[
                 { label: "USD ($)", value: "USD" },
                 { label: "INR (₹)", value: "INR" },
-                { label: "EUR (€)", value: "EUR" },
               ]}
             />
             <Select
@@ -164,65 +163,64 @@ export default function Settings({ user, onLogout, showToast }) {
               options={[
                 { label: "English", value: "English" },
                 { label: "Hindi", value: "Hindi" },
-                { label: "French", value: "French" },
               ]}
             />
           </Section>
 
           {/* Security */}
           <Section title="Security" icon={<Shield className="w-5 h-5 text-gray-600" />}>
-        <div className="relative">
-  <input
-    type={showCurrent ? "text" : "password"}
-    name="currentPassword"
-    value={passwordData.currentPassword}
-    onChange={handlePasswordChange}
-    placeholder="Current Password"
-    className="w-full border rounded-lg px-4 py-2 pr-10"
-  />
-  <div
-    className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
-    onClick={() => setShowCurrent((prev) => !prev)}
-  >
-    {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
-  </div>
-</div>
+            <div className="relative">
+              <input
+                type={showCurrent ? "text" : "password"}
+                name="currentPassword"
+                value={passwordData.currentPassword}
+                onChange={handlePasswordChange}
+                placeholder="Current Password"
+                className="w-full border rounded-lg px-4 py-2 pr-10"
+              />
+              <div
+                className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
+                onClick={() => setShowCurrent((prev) => !prev)}
+              >
+                {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+              </div>
+            </div>
 
-{/* New Password */}
-<div className="relative mt-4">
-  <input
-    type={showNew ? "text" : "password"}
-    name="newPassword"
-    value={passwordData.newPassword}
-    onChange={handlePasswordChange}
-    placeholder="New Password"
-    className="w-full border rounded-lg px-4 py-2 pr-10"
-  />
-  <div
-    className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
-    onClick={() => setShowNew((prev) => !prev)}
-  >
-    {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
-  </div>
-</div>
+            {/* New Password */}
+            <div className="relative mt-4">
+              <input
+                type={showNew ? "text" : "password"}
+                name="newPassword"
+                value={passwordData.newPassword}
+                onChange={handlePasswordChange}
+                placeholder="New Password"
+                className="w-full border rounded-lg px-4 py-2 pr-10"
+              />
+              <div
+                className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
+                onClick={() => setShowNew((prev) => !prev)}
+              >
+                {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+              </div>
+            </div>
 
-{/* Confirm New Password */}
-<div className="relative mt-4">
-  <input
-    type={showConfirm ? "text" : "password"}
-    name="confirmNewPassword"
-    value={passwordData.confirmNewPassword}
-    onChange={handlePasswordChange}
-    placeholder="Confirm New Password"
-    className="w-full border rounded-lg px-4 py-2 pr-10"
-  />
-  <div
-    className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
-    onClick={() => setShowConfirm((prev) => !prev)}
-  >
-    {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
-  </div>
-</div>
+            {/* Confirm New Password */}
+            <div className="relative mt-4">
+              <input
+                type={showConfirm ? "text" : "password"}
+                name="confirmNewPassword"
+                value={passwordData.confirmNewPassword}
+                onChange={handlePasswordChange}
+                placeholder="Confirm New Password"
+                className="w-full border rounded-lg px-4 py-2 pr-10"
+              />
+              <div
+                className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
+                onClick={() => setShowConfirm((prev) => !prev)}
+              >
+                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+              </div>
+            </div>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
